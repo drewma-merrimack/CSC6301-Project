@@ -1,0 +1,26 @@
+@startuml
+' Define the main class
+class SortedList {
+  + {static} main(args: String[]): void
+}
+
+' Define the classes used by SortedList
+class LinkedList << (G, #FF7700) Generic >> {
+  ' Note: Parameterized with Integer
+}
+class Collections <<utility>>
+class Scanner <<input handling>> {
+  ' Note: Used for both keyboard and file input
+}
+class File
+
+' Show dependencies
+SortedList ..> LinkedList : «uses»
+SortedList ..> Collections : «uses»
+SortedList ..> Scanner : «uses»
+SortedList ..> File : «uses»
+
+' Scanner is constructed with a File object
+Scanner --> File : "constructs with"
+
+@enduml

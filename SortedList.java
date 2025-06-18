@@ -1,20 +1,21 @@
 import java.util.LinkedList;
 import java.util.Collections;
+import java.util.Stack;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 /**
  * <p>
- * Project 04 (v1.0)
+ * Project 05 (v2.0)
  * </p>
  * <p>
  * A program that reads integers from either keyboard input or a text file (input.txt),
- * stores them in a sorted LinkedList using the Java Collections Framework, and prints
- * the sorted list. Includes error handling for invalid inputs and file issues, with
- * a loop to ensure valid input method selection. Utilizes `Collections.sort` for code
- * reuse instead of reimplementing a sorting algorithm.
+ * stores them in a sorted Stack using the Java Collections Framework, and prints
+ * the sorted list. This is a maintenance task adapting the previous LinkedList-based
+ * SortedList (Module 04) to use a Stack, reusing Collections.sort for sorting.
  * </p>
+ * 
  * 
  * <p>
  * Example Ouput:
@@ -23,18 +24,18 @@ import java.io.FileNotFoundException;
 user@users-Mac-mini Module4 % javac SortedList.java
 user@users-Mac-mini Module4 % java SortedList
 Would you like to enter integers or read them from file (T for type or F for File)? T
-Enter integers with spaces between them [e.g., 5 2 8 1 9]: 16 1 3 12 7
-Sorted List: [1, 3, 7, 12, 16]
+Enter integers with spaces between them [e.g., 5 2 8 1 9]: 5 2 1 8 9
+Sorted Stack: 1, 2, 5, 8, 9
 user@users-Mac-mini Module4 % java SortedList
-Would you like to enter integers or read them from file (T for type or F for File)? S
-Invalid input. Enter (T for type or F for File).
 Would you like to enter integers or read them from file (T for type or F for File)? F
 Scanned integers from input.txt: [5, 2, 8, 1, 9]
-Sorted List: [1, 2, 5, 8, 9]
-user@serss-Mac-mini Module4 % java SortedList
+Sorted Stack: 1, 2, 5, 8, 9
+Would you like to enter integers or read them from file (T for type or F for File)? G
+Invalid input. Enter (T for type or F for File).
 Would you like to enter integers or read them from file (T for type or F for File)? T
-Enter integers with spaces between them [e.g., 5 2 8 1 9]: 
-Error: No integers entered.
+Enter integers with spaces between them [e.g., 5 2 8 1 9]: 5 a 1 8 9
+Warning: Skipped invalid input (non-integer).
+Sorted Stack: 1, 5, 8, 9
  * }</pre>
  * 
  * @author Matthew Drew
@@ -43,15 +44,17 @@ Error: No integers entered.
 public class SortedList {
     /**
      * Reads integers from user-specified input (keyboard or file), sorts them,
-     * and prints the sorted list. Handles invalid inputs and file errors with
-     * a loop to ensure a valid choice (T or F) is entered. Reuses `Collections.sort`
-     * from the Java Collections Framework for efficient sorting.
+     * stores them in a Stack in ascending order, and prints the sorted list.
+     * Handles invalid inputs and file errors with a loop to ensure a valid
+     * choice (T or F) is entered. Reuses `Collections.sort` instead of
+     * reimplementing a sorting algorithm.
      *
      * @param args command-line arguments (not used)
      */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        LinkedList<Integer> numbers = new LinkedList<>();
+        LinkedList<Integer> tempList = new LinkedList<>(); // Temporary list for sorting
+        Stack<Integer> sortedStack = new Stack<>();
         String choice;
 
         do {
@@ -75,19 +78,17 @@ public class SortedList {
                 Scanner inputScanner = new Scanner(input);
                 while (inputScanner.hasNext()) {
                     if (inputScanner.hasNextInt()) {
-                        numbers.add(inputScanner.nextInt());
+                        tempList.add(inputScanner.nextInt());
                     } else {
                         inputScanner.next(); // Skip invalid input
                         System.out.println("Warning: Skipped invalid input (non-integer).");
                     }
                 }
                 inputScanner.close();
-                if (numbers.isEmpty()) {
+                if (tempList.isEmpty()) {
                     System.out.println("Error: No valid integers entered.");
                     return;
                 }
-                Collections.sort(numbers); // Sort the list for keyboard input
-                System.out.println("Sorted List: " + numbers);
 
             } else if ("F".equals(choice)) {
                 // File input
@@ -100,21 +101,33 @@ public class SortedList {
                 }
                 while (fileScanner.hasNext()) {
                     if (fileScanner.hasNextInt()) {
-                        numbers.add(fileScanner.nextInt());
+                        tempList.add(fileScanner.nextInt());
                     } else {
                         fileScanner.next(); // Skip invalid input
                         System.out.println("Warning: Skipped invalid input (non-integer) in input.txt.");
                     }
                 }
                 fileScanner.close();
-                if (numbers.isEmpty()) {
+                if (tempList.isEmpty()) {
                     System.out.println("Error: No valid integers found in input.txt.");
                     return;
                 }
-                System.out.println("Scanned integers from input.txt: " + numbers);
-                Collections.sort(numbers); // Sort the list for file input
-                System.out.println("Sorted List: " + numbers);
+                System.out.println("Scanned integers from input.txt: " + tempList);
             }
+
+            // Sort the temporary list and push to Stack in ascending order
+            Collections.sort(tempList); // Reuse Collections.sort for efficiency
+            for (int i = tempList.size() - 1; i >= 0; i--) { // Reverse order to maintain ascending when popped
+                sortedStack.push(tempList.get(i));
+            }
+
+            // Print the sorted Stack (popping to display in ascending order)
+            System.out.print("Sorted Stack: ");
+            Stack<Integer> tempStack = (Stack<Integer>) sortedStack.clone(); // Avoid modifying original
+            while (!tempStack.isEmpty()) {
+                System.out.print(tempStack.pop() + (tempStack.isEmpty() ? "" : ", "));
+            }
+            System.out.println();
 
         } catch (FileNotFoundException e) {
             System.out.println("Error: input.txt not found. Please ensure the file exists in the same directory.");
